@@ -16,11 +16,19 @@ from net import Encoder
 from net import Decoder
 from updater import FacadeUpdater
 
-from nturgbd_dataset import NTURGBDDataset
+from nturgbd_dataset import NTURGBDDatasetForSkeleton2Flow, NTURGBDDatasetForSkeleton2RGB
 from nturgbd_visualizer import out_image
+
+
+datasets = {
+    "skeleton2rgb": NTURGBDDatasetForSkeleton2RGB,
+    "skeleton2flow": NTURGBDDatasetForSkeleton2Flow
+}
 
 def main():
     parser = argparse.ArgumentParser(description='chainer implementation of pix2pix')
+    parser.add_argument('--dataset-name', '-d', type=str, default="skeleton2flow", choices=datasets.keys(),
+                        help='Number of images in each mini-batch')
     parser.add_argument('--batchsize', '-b', type=int, default=1,
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=200,
@@ -53,9 +61,10 @@ def main():
     print('')
 
     # Set up a neural network to train
-    enc = Encoder(in_ch=3)
-    dec = Decoder(out_ch=3)
-    dis = Discriminator(in_ch=3, out_ch=3)
+    dataset = datasets[args.dataset_name]
+    enc = Encoder(in_ch=dataset.in_ch)
+    dec = Decoder(out_ch=dataset.out_ch)
+    dis = Discriminator(in_ch=dataset.in_ch, out_ch=dataset.out_ch)
     
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()  # Make a specified GPU current
@@ -73,9 +82,9 @@ def main():
     opt_dec = make_optimizer(dec)
     opt_dis = make_optimizer(dis)
 
-    train_d = NTURGBDDataset(
+    train_d = dataset(
         subset="train", dataDir=args.dataset, split_criterion=args.split_criterion, n_samples=args.train_samples)
-    test_d = NTURGBDDataset(
+    test_d = dataset(
         subset="test", dataDir=args.dataset, split_criterion=args.split_criterion, n_samples=args.test_samples)
     train_iter = chainer.iterators.MultiprocessIterator(train_d, args.batchsize, n_processes=None)
     test_iter = chainer.iterators.MultiprocessIterator(test_d, args.batchsize, n_processes=None)
