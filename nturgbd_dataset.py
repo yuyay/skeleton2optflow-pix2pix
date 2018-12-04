@@ -120,6 +120,19 @@ class NTURGBDDatasetForSkeleton2Flow(NTURGBDDatasetForSkeleton2RGB):
         else:
             pass                
 
+        print("\t# of image pairs:", len(edge_paths))
+        if n_samples > 0:
+            indices = np.random.permutation(len(edge_paths))[:n_samples]
+            self.joint_paths = [joint_paths[i] for i in indices]
+            self.edge_paths = [edge_paths[i] for i in indices]
+            self.flowx_paths = [flowx_paths[i] for i in indices]
+            self.flowy_paths = [flowy_paths[i] for i in indices]
+        else:
+            self.rgb_paths = rgb_paths
+            self.edge_paths = edge_paths
+            self.flowx_paths = flowx_paths
+            self.flowy_paths = flowy_paths
+
     def __len__(self):
         return len(self.edge_paths)
 
