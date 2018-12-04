@@ -60,6 +60,9 @@ class NTURGBDDatasetForSkeleton2Flow(NTURGBDDatasetForSkeleton2RGB):
         else:
             pass                
 
+    def __len__(self):
+        return len(self.edge_paths)
+
     # return (img1, img2)
     def get_example(self, i, crop_width=256):
         edge_im, joint_im, flowx_im, flowy_im = load_four_images(
