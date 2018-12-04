@@ -17,63 +17,6 @@ import skimage.io as io
 
 from chainer.dataset import dataset_mixin
 
-class NTURGBDDatasetForSkeleton2Flow(NTURGBDDatasetForSkeleton2RGB):
-
-    in_ch = 6
-    in_ch = 2
-
-    def __init__(
-        self, subset="train", dataDir='./data/nturgbd', split_criterion="view",
-        n_samples=-1
-    ):
-        print("load dataset start")
-        print("\tdataDir: %s"%dataDir)
-        print("\tsubset:", subset)
-        print("\tsplit criterion:", split_criterion)
-
-        flowx_paths = []
-        flowy_paths = []
-        edge_paths = []
-        joint_paths = []
-        if split_criterion == "subject":
-            for i in self.subject_ids[subset]:
-                for flowx_p in glob.glob(os.path.join(dataDir, "S{0:03d}C*/flowx_*.jpg".format(i))):
-                    edge_p = flowx_p.replace("flowx_", "edge_")
-                    flowy_p = flowx_p.replace("flowx_", "flowy_")
-                    joint_p = flowx_p.replace("flowx_", "joint_")
-                    if os.path.exists(edge_p):
-                        flowx_paths.append(flowx_p)
-                        flowy_paths.append(flowy_p)
-                        edge_paths.append(edge_p)
-                        joint_paths.append(joint_p)
-        elif split_criterion == "view":
-            for i in self.view_ids[subset]:
-                for flowx_p in glob.glob(os.path.join(dataDir, "*C{0:03d}P*/flowx_*.jpg".format(i))):
-                    edge_p = flowx_p.replace("flowx_", "edge_")
-                    flowy_p = flowx_p.replace("flowx_", "flowy_")
-                    joint_p = flowx_p.replace("flowx_", "joint_")
-                    if os.path.exists(edge_p):
-                        flowx_paths.append(flowx_p)
-                        flowy_paths.append(flowy_p)
-                        edge_paths.append(edge_p)
-                        joint_paths.append(joint_p)
-        else:
-            pass                
-
-    def __len__(self):
-        return len(self.edge_paths)
-
-    # return (img1, img2)
-    def get_example(self, i, crop_width=256):
-        edge_im, joint_im, flowx_im, flowy_im = load_four_images(
-            self.edge_paths[i], self.joint_paths[i], self.flowx_paths[i], 
-            self.flowy_paths[i], crop_width=crop_width)
-
-        im1 = np.concatenate((edge_im, joint_im), axis=0)
-        im2 = np.concatenate((flowx_im, flowy_im), axis=0)
-        return im1, im2
-
-
 class NTURGBDDatasetForSkeleton2RGB(dataset_mixin.DatasetMixin):
 
     subject_ids = dict()
@@ -132,6 +75,64 @@ class NTURGBDDatasetForSkeleton2RGB(dataset_mixin.DatasetMixin):
     def get_example(self, i, crop_width=256):
         return load_paired_images(self.edge_paths[i], self.rgb_paths[i], crop_width=crop_width)
     
+
+
+class NTURGBDDatasetForSkeleton2Flow(NTURGBDDatasetForSkeleton2RGB):
+
+    in_ch = 6
+    out_ch = 2
+
+    def __init__(
+        self, subset="train", dataDir='./data/nturgbd', split_criterion="view",
+        n_samples=-1
+    ):
+        print("load dataset start")
+        print("\tdataDir: %s"%dataDir)
+        print("\tsubset:", subset)
+        print("\tsplit criterion:", split_criterion)
+
+        flowx_paths = []
+        flowy_paths = []
+        edge_paths = []
+        joint_paths = []
+        if split_criterion == "subject":
+            for i in self.subject_ids[subset]:
+                for flowx_p in glob.glob(os.path.join(dataDir, "S{0:03d}C*/flowx_*.jpg".format(i))):
+                    edge_p = flowx_p.replace("flowx_", "edge_")
+                    flowy_p = flowx_p.replace("flowx_", "flowy_")
+                    joint_p = flowx_p.replace("flowx_", "joint_")
+                    if os.path.exists(edge_p):
+                        flowx_paths.append(flowx_p)
+                        flowy_paths.append(flowy_p)
+                        edge_paths.append(edge_p)
+                        joint_paths.append(joint_p)
+        elif split_criterion == "view":
+            for i in self.view_ids[subset]:
+                for flowx_p in glob.glob(os.path.join(dataDir, "*C{0:03d}P*/flowx_*.jpg".format(i))):
+                    edge_p = flowx_p.replace("flowx_", "edge_")
+                    flowy_p = flowx_p.replace("flowx_", "flowy_")
+                    joint_p = flowx_p.replace("flowx_", "joint_")
+                    if os.path.exists(edge_p):
+                        flowx_paths.append(flowx_p)
+                        flowy_paths.append(flowy_p)
+                        edge_paths.append(edge_p)
+                        joint_paths.append(joint_p)
+        else:
+            pass                
+
+    def __len__(self):
+        return len(self.edge_paths)
+
+    # return (img1, img2)
+    def get_example(self, i, crop_width=256):
+        edge_im, joint_im, flowx_im, flowy_im = load_four_images(
+            self.edge_paths[i], self.joint_paths[i], self.flowx_paths[i], 
+            self.flowy_paths[i], crop_width=crop_width)
+
+        im1 = np.concatenate((edge_im, joint_im), axis=0)
+        im2 = np.concatenate((flowx_im, flowy_im), axis=0)
+        return im1, im2
+
 
 def load_paired_images(path1, path2, crop_width=256):
     im1 = np.asarray(Image.open(path1), dtype="f").transpose(2, 0, 1) / 128.0 - 1.0
