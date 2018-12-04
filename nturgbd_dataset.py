@@ -165,8 +165,8 @@ def load_paired_images(path1, path2, crop_width=256):
 def load_four_images(edge_p, joint_p, flowx_p, flowy_p, crop_width=256):
     edge_im = np.asarray(Image.open(edge_p), dtype="f").transpose(2, 0, 1) / 128.0 - 1.0
     joint_im = np.asarray(Image.open(joint_p), dtype="f").transpose(2, 0, 1) / 128.0 - 1.0
-    flowx_im = np.asarray(Image.open(flowx_p), dtype="f").transpose(2, 0, 1) / 128.0 - 1.0
-    flowy_im = np.asarray(Image.open(flowy_p), dtype="f").transpose(2, 0, 1) / 128.0 - 1.0
+    flowx_im = np.asarray(Image.open(flowx_p), dtype="f")[np.newaxis, ...] / 128.0 - 1.0
+    flowy_im = np.asarray(Image.open(flowy_p), dtype="f")[np.newaxis, ...] / 128.0 - 1.0
     assert edge_im.shape == joint_im.shape, "Mismatch shape: {} vs {}".format(edge_im.shape, joint_im.shape)
     assert flowx_im.shape == flowy_im.shape, "Mismatch shape: {} vs {}".format(flowx_im.shape, flowy_im.shape)
 
