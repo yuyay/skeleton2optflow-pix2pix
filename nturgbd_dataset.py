@@ -162,7 +162,7 @@ def load_paired_images(path1, path2, crop_width=256):
     return im1[:,y_l:y_r,x_l:x_r], im2[:,y_l:y_r,x_l:x_r]
 
 
-def load_triplet_images(edge_p, joint_p, flowx_p, flowy_p, crop_width=256):
+def load_four_images(edge_p, joint_p, flowx_p, flowy_p, crop_width=256):
     edge_im = np.asarray(Image.open(edge_p), dtype="f").transpose(2, 0, 1) / 128.0 - 1.0
     joint_im = np.asarray(Image.open(joint_p), dtype="f").transpose(2, 0, 1) / 128.0 - 1.0
     flowx_im = np.asarray(Image.open(flowx_p), dtype="f").transpose(2, 0, 1) / 128.0 - 1.0
