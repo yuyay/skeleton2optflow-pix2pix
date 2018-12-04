@@ -17,12 +17,18 @@ from net import Decoder
 from updater import FacadeUpdater
 
 from nturgbd_dataset import NTURGBDDatasetForSkeleton2Flow, NTURGBDDatasetForSkeleton2RGB
-from nturgbd_visualizer import out_image
+import nturgbd_visualizer
+import nturgbd_skeleton2flow_visualizer
 
 
 datasets = {
     "skeleton2rgb": NTURGBDDatasetForSkeleton2RGB,
     "skeleton2flow": NTURGBDDatasetForSkeleton2Flow
+}
+
+visualizers = {
+    "skeleton2rgb": nturgbd_visualizer.out_image,
+    "skeleton2flow": nturgbd_skeleton2flow_visualizer.out_image
 }
 
 def main():
@@ -120,7 +126,7 @@ def main():
     ]), trigger=display_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
     trainer.extend(
-        out_image(
+        visualizers[args.dataset_name](
             updater, enc, dec,
             5, 5, args.seed, args.out),
         trigger=snapshot_interval)
