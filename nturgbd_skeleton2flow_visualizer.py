@@ -80,6 +80,6 @@ def out_image(updater, enc, dec, rows, cols, seed, dst):
 
         x = np.asarray(np.clip(gt_all * 128+128, 0.0, 255.0), dtype=np.uint8)
         save_image(x[:, 0:1, :, :], "gt_flowx")
-        save_image(x[:, 1:2, :, :]), "gt_flowy")
+        save_image(x[:, 1:2, :, :], "gt_flowy")
         
     return make_image
