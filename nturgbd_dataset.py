@@ -128,7 +128,7 @@ class NTURGBDDatasetForSkeleton2Flow(NTURGBDDatasetForSkeleton2RGB):
             self.flowx_paths = [flowx_paths[i] for i in indices]
             self.flowy_paths = [flowy_paths[i] for i in indices]
         else:
-            self.rgb_paths = rgb_paths
+            self.joint_paths = joint_paths
             self.edge_paths = edge_paths
             self.flowx_paths = flowx_paths
             self.flowy_paths = flowy_paths
